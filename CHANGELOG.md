@@ -11,6 +11,10 @@
 - fix(search): read --force-rescan flag with its registered name [[#2639](https://github.com/opencloud-eu/opencloud/pull/2639)]
 - fix(search): parse tika xmpDM:duration as a float [[#2638](https://github.com/opencloud-eu/opencloud/pull/2638)]
 
+### 📦️ Dependencies
+
+- build(deps): bump github.com/open-policy-agent/opa from 1.15.1 to 1.15.2 [[#2602](https://github.com/opencloud-eu/opencloud/pull/2602)]
+
 ## [6.1.0](https://github.com/opencloud-eu/opencloud/releases/tag/v6.1.0) - 2026-04-20
 
 ### ❤️ Thanks to all contributors! ❤️
