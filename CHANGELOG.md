@@ -4,7 +4,11 @@
 
 ### ❤️ Thanks to all contributors! ❤️
 
-@dschmidt
+@dschmidt, @schweigisito
+
+### 📚 Documentation
+
+- enhancement: increase display size of graph flow diagram [[#2620](https://github.com/opencloud-eu/opencloud/pull/2620)]
 
 ### 🐛 Bug Fixes
 
