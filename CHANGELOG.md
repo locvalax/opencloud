@@ -1,5 +1,15 @@
 # Changelog
 
+## [6.1.1](https://github.com/opencloud-eu/opencloud/releases/tag/v6.1.1) - 2026-04-21
+
+### ❤️ Thanks to all contributors! ❤️
+
+@dschmidt
+
+### 🐛 Bug Fixes
+
+- fix(search): parse tika xmpDM:duration as a float [[#2638](https://github.com/opencloud-eu/opencloud/pull/2638)]
+
 ## [6.1.0](https://github.com/opencloud-eu/opencloud/releases/tag/v6.1.0) - 2026-04-20
 
 ### ❤️ Thanks to all contributors! ❤️
