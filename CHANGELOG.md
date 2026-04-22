@@ -1,10 +1,14 @@
 # Changelog
 
-## [6.1.1](https://github.com/opencloud-eu/opencloud/releases/tag/v6.1.1) - 2026-04-22
+## [6.2.0](https://github.com/opencloud-eu/opencloud/releases/tag/v6.2.0) - 2026-04-22
 
 ### ❤️ Thanks to all contributors! ❤️
 
 @dschmidt, @schweigisito
+
+### 📈 Enhancement
+
+- feat(kql): support dotted keys in property restrictions [[#2632](https://github.com/opencloud-eu/opencloud/pull/2632)]
 
 ### 📚 Documentation
 
