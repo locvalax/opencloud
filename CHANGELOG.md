@@ -21,6 +21,7 @@
 
 ### 📦️ Dependencies
 
+- build(deps): bump go.opentelemetry.io/otel/exporters/stdout/stdouttrace from 1.42.0 to 1.43.0 [[#2601](https://github.com/opencloud-eu/opencloud/pull/2601)]
 - build(deps): bump github.com/davidbyttow/govips/v2 from 2.17.0 to 2.18.0 [[#2656](https://github.com/opencloud-eu/opencloud/pull/2656)]
 - build(deps): bump i18next from 25.10.10 to 26.0.4 in /services/idp [[#2609](https://github.com/opencloud-eu/opencloud/pull/2609)]
 - build(deps): bump github.com/testcontainers/testcontainers-go/modules/opensearch from 0.41.0 to 0.42.0 [[#2645](https://github.com/opencloud-eu/opencloud/pull/2645)]
