@@ -21,6 +21,7 @@
 
 ### 📦️ Dependencies
 
+- build(deps): bump github.com/davidbyttow/govips/v2 from 2.17.0 to 2.18.0 [[#2656](https://github.com/opencloud-eu/opencloud/pull/2656)]
 - build(deps): bump i18next from 25.10.10 to 26.0.4 in /services/idp [[#2609](https://github.com/opencloud-eu/opencloud/pull/2609)]
 - build(deps): bump github.com/testcontainers/testcontainers-go/modules/opensearch from 0.41.0 to 0.42.0 [[#2645](https://github.com/opencloud-eu/opencloud/pull/2645)]
 - build(deps): bump github.com/open-policy-agent/opa from 1.15.1 to 1.15.2 [[#2602](https://github.com/opencloud-eu/opencloud/pull/2602)]
