@@ -4,7 +4,13 @@
 
 ### ❤️ Thanks to all contributors! ❤️
 
-@dschmidt, @fschade, @rhafer, @schweigisito
+@dragonchaser, @dschmidt, @fschade, @rhafer, @schweigisito
+
+### 🐛 Bug Fixes
+
+- Hotfix for https://github.com/opencloud-eu/opencloud/issues/2282 [[#2631](https://github.com/opencloud-eu/opencloud/pull/2631)]
+- fix(search): read --force-rescan flag with its registered name [[#2639](https://github.com/opencloud-eu/opencloud/pull/2639)]
+- fix(search): parse tika xmpDM:duration as a float [[#2638](https://github.com/opencloud-eu/opencloud/pull/2638)]
 
 ### 📈 Enhancement
 
@@ -13,11 +19,6 @@
 ### 📚 Documentation
 
 - enhancement: increase display size of graph flow diagram [[#2620](https://github.com/opencloud-eu/opencloud/pull/2620)]
-
-### 🐛 Bug Fixes
-
-- fix(search): read --force-rescan flag with its registered name [[#2639](https://github.com/opencloud-eu/opencloud/pull/2639)]
-- fix(search): parse tika xmpDM:duration as a float [[#2638](https://github.com/opencloud-eu/opencloud/pull/2638)]
 
 ### 📦️ Dependencies
 
