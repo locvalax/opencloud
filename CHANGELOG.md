@@ -4,7 +4,7 @@
 
 ### ❤️ Thanks to all contributors! ❤️
 
-@dschmidt, @fschade, @schweigisito
+@dschmidt, @fschade, @rhafer, @schweigisito
 
 ### 📈 Enhancement
 
