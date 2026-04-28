@@ -1,10 +1,10 @@
 # Changelog
 
-## [6.2.0](https://github.com/opencloud-eu/opencloud/releases/tag/v6.2.0) - 2026-04-26
+## [6.2.0](https://github.com/opencloud-eu/opencloud/releases/tag/v6.2.0) - 2026-04-28
 
 ### ❤️ Thanks to all contributors! ❤️
 
-@dragonchaser, @dschmidt, @fschade, @rhafer, @schweigisito
+@aduffeck, @dragonchaser, @dschmidt, @fschade, @rhafer, @schweigisito
 
 ### 🐛 Bug Fixes
 
