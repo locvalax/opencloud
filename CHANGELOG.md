@@ -4,7 +4,11 @@
 
 ### ❤️ Thanks to all contributors! ❤️
 
-@aduffeck, @dragonchaser, @dschmidt, @fschade, @rhafer, @schweigisito
+@ScharfViktor, @aduffeck, @dragonchaser, @dschmidt, @fschade, @rhafer, @schweigisito
+
+### ✅ Tests
+
+- [api-tests] delete PROPATCH favorite tests [[#2689](https://github.com/opencloud-eu/opencloud/pull/2689)]
 
 ### 🐛 Bug Fixes
 
