@@ -8,6 +8,7 @@
 
 ### 🐛 Bug Fixes
 
+- More graceful shutdown fixes [[#2690](https://github.com/opencloud-eu/opencloud/pull/2690)]
 - Hotfix for https://github.com/opencloud-eu/opencloud/issues/2282 [[#2631](https://github.com/opencloud-eu/opencloud/pull/2631)]
 - fix(search): read --force-rescan flag with its registered name [[#2639](https://github.com/opencloud-eu/opencloud/pull/2639)]
 - fix(search): parse tika xmpDM:duration as a float [[#2638](https://github.com/opencloud-eu/opencloud/pull/2638)]
