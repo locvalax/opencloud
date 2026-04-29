@@ -3182,7 +3182,7 @@ func (js *jetStream) monitorStream(mset *stream, sa *streamAssignment, sendSnaps
 						// If the error signals we timed out of a snapshot, we should try to replay the snapshot
 						// instead of fully resetting the state. Resetting the clustered state may result in
 						// race conditions and should only be used as a last effort attempt.
-						if errors.Is(err, errCatchupAbortedNoLeader) || err == errCatchupTooManyRetries {
+						if errors.Is(err, errCatchupAbortedNoLeader) || err == errCatchupTooManyRetries || err == errAlreadyLeader {
 							if node := mset.raftNode(); node != nil && node.DrainAndReplaySnapshot() {
 								break
 							}
@@ -3989,10 +3989,8 @@ func (js *jetStream) applyStreamEntries(mset *stream, ce *CommittedEntry, isReco
 				}
 			}
 
-			if isRecovering || !mset.IsLeader() {
-				if err := mset.processSnapshot(ss, ce.Index); err != nil {
-					return 0, err
-				}
+			if err := mset.processSnapshot(ss, ce.Index); err != nil {
+				return 0, err
 			}
 		} else if e.Type == EntryRemovePeer {
 			js.mu.RLock()
@@ -4162,19 +4160,31 @@ func (js *jetStream) applyStreamMsgOp(mset *stream, op entryOp, mbuf []byte, isR
 	// Process the actual message here.
 	err = mset.processJetStreamMsg(subject, reply, hdr, msg, lseq, ts, mt, sourced, needLock)
 
+	// Take into account subject transforms, if any.
+	// The untransformed subject is replicated, but the transformed subject is used for consistency checks below.
+	csubject := subject
+	if mset.inflightTransform != nil {
+		mset.clMu.Lock()
+		if subj, found := mset.inflightTransform[lseq]; found {
+			csubject = subj
+			delete(mset.inflightTransform, lseq)
+		}
+		mset.clMu.Unlock()
+	}
+
 	// If we have inflight make sure to clear after processing.
 	// TODO(dlc) - technically check on inflight != nil could cause datarace.
 	// But do not want to acquire lock since tracking this will be rare.
 	if mset.inflight != nil {
 		mset.clMu.Lock()
-		if i, found := mset.inflight[subject]; found {
+		if i, found := mset.inflight[csubject]; found {
 			// Decrement from pending operations. Once it reaches zero, it can be deleted.
 			if i.ops > 0 {
 				var sz uint64
 				if mset.store.Type() == FileStorage {
-					sz = fileStoreMsgSizeRaw(len(subject), len(hdr), len(msg))
+					sz = fileStoreMsgSizeRaw(len(csubject), len(hdr), len(msg))
 				} else {
-					sz = memStoreMsgSizeRaw(len(subject), len(hdr), len(msg))
+					sz = memStoreMsgSizeRaw(len(csubject), len(hdr), len(msg))
 				}
 				if i.bytes >= sz {
 					i.bytes -= sz
@@ -4184,7 +4194,7 @@ func (js *jetStream) applyStreamMsgOp(mset *stream, op entryOp, mbuf []byte, isR
 				i.ops--
 			}
 			if i.ops == 0 {
-				delete(mset.inflight, subject)
+				delete(mset.inflight, csubject)
 			}
 		}
 		mset.clMu.Unlock()
@@ -4193,13 +4203,13 @@ func (js *jetStream) applyStreamMsgOp(mset *stream, op entryOp, mbuf []byte, isR
 	// Update running total for counter.
 	if mset.clusteredCounterTotal != nil {
 		mset.clMu.Lock()
-		if counter, found := mset.clusteredCounterTotal[subject]; found {
+		if counter, found := mset.clusteredCounterTotal[csubject]; found {
 			// Decrement from pending operations. Once it reaches zero, it can be deleted.
 			if counter.ops > 0 {
 				counter.ops--
 			}
 			if counter.ops == 0 {
-				delete(mset.clusteredCounterTotal, subject)
+				delete(mset.clusteredCounterTotal, csubject)
 			}
 		}
 		mset.clMu.Unlock()
@@ -4295,6 +4305,7 @@ func (js *jetStream) processStreamLeaderChange(mset *stream, isLeader bool) {
 	mset.clMu.Lock()
 	// Clear inflight if we have it.
 	mset.inflight = nil
+	mset.inflightTransform = nil
 	// Clear running counter totals.
 	mset.clusteredCounterTotal = nil
 	// Clear expected per subject state.
@@ -4320,15 +4331,15 @@ func (js *jetStream) processStreamLeaderChange(mset *stream, isLeader bool) {
 		if node := mset.raftNode(); node != nil && !node.Quorum() && time.Since(node.Created()) > 5*time.Second {
 			s.sendStreamLostQuorumAdvisory(mset)
 		}
-
-		// Clear clseq. If we become leader again, it will be fixed up
-		// automatically on the next mset.setLeader call.
-		mset.clMu.Lock()
-		if mset.clseq > 0 {
-			mset.clseq = 0
-		}
-		mset.clMu.Unlock()
 	}
+
+	// Clear clseq on every leader transition. recalculateClusteredSeq
+	// repopulates it on the next proposal.
+	mset.clMu.Lock()
+	if mset.clseq > 0 {
+		mset.clseq = 0
+	}
+	mset.clMu.Unlock()
 
 	// Tell stream to switch leader status.
 	mset.setLeader(isLeader)
@@ -4805,7 +4816,7 @@ func (js *jetStream) processClusterUpdateStream(acc *Account, osa, sa *streamAss
 	js.mu.Lock()
 	s, rg := js.srv, sa.Group
 	client, subject, reply := sa.Client, sa.Subject, sa.Reply
-	alreadyRunning, numReplicas := osa.Group.node != nil, len(rg.Peers)
+	alreadyRunning, oldNumReplicas, numReplicas := osa.Group.node != nil, len(osa.Group.Peers), len(rg.Peers)
 	needsNode := rg.node == nil
 	storage, cfg := sa.Config.Storage, sa.Config
 	hasResponded := sa.responded
@@ -4831,6 +4842,9 @@ func (js *jetStream) processClusterUpdateStream(acc *Account, osa, sa *streamAss
 
 		if !alreadyRunning && numReplicas > 1 {
 			if needsNode {
+				// Must run before startClusterSubs reads mset.sa.Sync.
+				mset.setStreamAssignment(sa)
+
 				// Since we are scaling up we want to make sure our sync subject
 				// is registered before we start our raft node.
 				mset.mu.Lock()
@@ -4906,6 +4920,11 @@ func (js *jetStream) processClusterUpdateStream(acc *Account, osa, sa *streamAss
 	}
 
 	isLeader := mset.IsLeader()
+
+	// If the stream is scaled down, there is a chance we weren't already the leader.
+	if isLeader && numReplicas == 1 && oldNumReplicas > 1 {
+		js.processStreamLeaderChange(mset, true)
+	}
 
 	// Check for missing syncSubject bug.
 	if isLeader && osa != nil && osa.Sync == _EMPTY_ {
@@ -5803,10 +5822,15 @@ func (js *jetStream) processClusterCreateConsumer(oca, ca *consumerAssignment, s
 						func() {
 							defer s.grWG.Done()
 							defer o.clearMonitorRunning()
-							o.setLeader(true)
+							err = o.setLeader(true)
 							var resp = JSApiConsumerCreateResponse{ApiResponse: ApiResponse{Type: JSApiConsumerCreateResponseType}}
-							resp.ConsumerInfo = setDynamicConsumerInfoMetadata(o.info())
-							s.sendAPIResponse(client, acc, subject, reply, _EMPTY_, s.jsonResponse(&resp))
+							if err != nil {
+								resp.Error = NewJSConsumerCreateError(err, Unless(err))
+								s.sendAPIErrResponse(client, acc, subject, reply, _EMPTY_, s.jsonResponse(&resp))
+							} else {
+								resp.ConsumerInfo = setDynamicConsumerInfoMetadata(o.info())
+								s.sendAPIResponse(client, acc, subject, reply, _EMPTY_, s.jsonResponse(&resp))
+							}
 						},
 						pprofLabels{
 							"type":     "consumer",
@@ -6503,6 +6527,9 @@ func (js *jetStream) applyConsumerEntries(o *consumer, ce *CommittedEntry, isLea
 				if !o.isLeader() && sseq > o.sseq {
 					o.sseq = sseq
 				}
+				if o.dseq == 0 {
+					o.dseq = 1
+				}
 				if o.store != nil {
 					o.store.UpdateStarting(sseq - 1)
 				}
@@ -6674,7 +6701,9 @@ func (js *jetStream) processConsumerLeaderChangeWithAssignment(o *consumer, ca *
 	}
 
 	// Tell consumer to switch leader status.
-	o.setLeader(isLeader)
+	if lerr := o.setLeader(isLeader); lerr != nil && err == nil {
+		err = lerr
+	}
 
 	if !isLeader || hasResponded {
 		if isLeader {
@@ -9527,6 +9556,16 @@ func (mset *stream) processClusteredInboundMsg(subject, reply string, hdr, msg [
 	s, js, jsa, st, r, tierName, outq, node := mset.srv, mset.js, mset.jsa, mset.cfg.Storage, mset.cfg.Replicas, mset.tier, mset.outq, mset.node
 	maxMsgSize, lseq := int(mset.cfg.MaxMsgSize), mset.lseq
 	isLeader, isSealed, allowRollup, denyPurge, allowTTL, allowMsgCounter, allowMsgSchedules := mset.isLeader(), mset.cfg.Sealed, mset.cfg.AllowRollup, mset.cfg.DenyPurge, mset.cfg.AllowMsgTTL, mset.cfg.AllowMsgCounter, mset.cfg.AllowMsgSchedules
+
+	// Apply the input subject transform if any
+	csubject := subject
+	if mset.itr != nil {
+		ts, err := mset.itr.Match(csubject)
+		if err == nil {
+			// no filtering: if the subject doesn't map the source of the transform, don't change it
+			csubject = ts
+		}
+	}
 	mset.mu.RUnlock()
 
 	// This should not happen but possible now that we allow scale up, and scale down where this could trigger.
@@ -9577,7 +9616,7 @@ func (mset *stream) processClusteredInboundMsg(subject, reply string, hdr, msg [
 	}
 
 	// Check here pre-emptively if we have exceeded our account limits.
-	if exceeded, err := jsa.wouldExceedLimits(st, tierName, r, subject, hdr, msg); exceeded {
+	if exceeded, err := jsa.wouldExceedLimits(st, tierName, r, csubject, hdr, msg); exceeded {
 		if err == nil {
 			err = NewJSAccountResourcesExceededError()
 		}
@@ -9638,7 +9677,7 @@ func (mset *stream) processClusteredInboundMsg(subject, reply string, hdr, msg [
 		err    error
 	)
 	diff := &batchStagedDiff{}
-	if hdr, msg, dseq, apiErr, err = checkMsgHeadersPreClusteredProposal(diff, mset, subject, hdr, msg, sourced, name, jsa, allowRollup, denyPurge, allowTTL, allowMsgCounter, allowMsgSchedules, discard, discardNewPer, maxMsgSize, maxMsgs, maxMsgsPer, maxBytes); err != nil {
+	if hdr, msg, dseq, apiErr, err = checkMsgHeadersPreClusteredProposal(diff, mset, csubject, subject, hdr, msg, sourced, name, jsa, allowRollup, denyPurge, allowTTL, allowMsgCounter, allowMsgSchedules, discard, discardNewPer, maxMsgSize, maxMsgs, maxMsgsPer, maxBytes); err != nil {
 		mset.clMu.Unlock()
 		if err == errMsgIdDuplicate && dseq > 0 {
 			var buf [256]byte
@@ -9657,8 +9696,13 @@ func (mset *stream) processClusteredInboundMsg(subject, reply string, hdr, msg [
 		return err
 	}
 
-	diff.commit(mset)
-	esm := encodeStreamMsgAllowCompress(subject, reply, hdr, msg, mset.clseq, time.Now().UnixNano(), sourced)
+	// Do proposal.
+	esm := encodeStreamMsgAllowCompress(subject, reply, hdr, msg, mset.clseq, time.Now().UnixNano(), false)
+	if err = node.Propose(esm); err != nil {
+		mset.clMu.Unlock()
+		return err
+	}
+
 	var mtKey uint64
 	if mt != nil {
 		mtKey = mset.clseq
@@ -9668,9 +9712,7 @@ func (mset *stream) processClusteredInboundMsg(subject, reply string, hdr, msg [
 		mset.mt[mtKey] = mt
 	}
 
-	// Do proposal.
-	_ = node.Propose(esm)
-	// The proposal can fail, but we always account for trying.
+	diff.commit(mset)
 	mset.clseq++
 	mset.trackReplicationTraffic(node, len(esm), r)
 
@@ -9681,23 +9723,6 @@ func (mset *stream) processClusteredInboundMsg(subject, reply string, hdr, msg [
 		s.RateLimitWarnf("%s", lerr.Error())
 	}
 	mset.clMu.Unlock()
-
-	if err != nil {
-		if mt != nil {
-			mset.getAndDeleteMsgTrace(mtKey)
-		}
-		if canRespond {
-			var resp = &JSPubAckResponse{PubAck: &PubAck{Stream: mset.cfg.Name}}
-			resp.Error = &ApiError{Code: 503, Description: err.Error()}
-			response, _ = json.Marshal(resp)
-			// If we errored out respond here.
-			outq.send(newJSPubMsg(reply, _EMPTY_, _EMPTY_, nil, response, nil, 0))
-		}
-		if isOutOfSpaceErr(err) {
-			s.handleOutOfSpace(mset)
-		}
-	}
-
 	return err
 }
 
@@ -9910,7 +9935,14 @@ func (mset *stream) processSnapshot(snap *StreamReplicatedState, index uint64) (
 
 	// Pause the apply channel for our raft group while we catch up.
 	if err := n.PauseApply(); err != nil {
-		return err
+		// The only reason PauseApply can fail is due to errAlreadyLeader.
+		// We step down to get someone else to become the leader that can catch us up.
+		// Ignore the error since we could have already stepped down before us doing so here.
+		_ = n.StepDown()
+		// Now try pausing again and continue to catchup.
+		if err = n.PauseApply(); err != nil {
+			return err
+		}
 	}
 
 	// Set our catchup state.
