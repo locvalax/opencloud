@@ -27,6 +27,8 @@
 
 ### 📦️ Dependencies
 
+- build(deps): bump go.opentelemetry.io/contrib/zpages from 0.67.0 to 0.68.0 [[#2666](https://github.com/opencloud-eu/opencloud/pull/2666)]
+- build(deps): bump @types/node from 22.19.17 to 25.6.0 in /services/idp [[#2687](https://github.com/opencloud-eu/opencloud/pull/2687)]
 - build(deps): bump go.opentelemetry.io/otel/exporters/stdout/stdouttrace from 1.42.0 to 1.43.0 [[#2601](https://github.com/opencloud-eu/opencloud/pull/2601)]
 - build(deps): bump github.com/davidbyttow/govips/v2 from 2.17.0 to 2.18.0 [[#2656](https://github.com/opencloud-eu/opencloud/pull/2656)]
 - build(deps): bump i18next from 25.10.10 to 26.0.4 in /services/idp [[#2609](https://github.com/opencloud-eu/opencloud/pull/2609)]
