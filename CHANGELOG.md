@@ -8,6 +8,7 @@
 
 ### 🐛 Bug Fixes
 
+- fix: remove typo in error message [[#2701](https://github.com/opencloud-eu/opencloud/pull/2701)]
 - fix(search): preserve value case for non-lowercased bleve fields [[#2633](https://github.com/opencloud-eu/opencloud/pull/2633)]
 - More graceful shutdown fixes [[#2690](https://github.com/opencloud-eu/opencloud/pull/2690)]
 - Hotfix for https://github.com/opencloud-eu/opencloud/issues/2282 [[#2631](https://github.com/opencloud-eu/opencloud/pull/2631)]
