@@ -1,70 +1,70 @@
-![OpenCloud logo](https://raw.githubusercontent.com/opencloud-eu/opencloud/refs/heads/main/opencloud_logo.png)
+# OpenCloud
 
-[![status-badge](https://ci.opencloud.rocks/api/badges/3/status.svg)](https://ci.opencloud.rocks/repos/3)
- [![Matrix](https://img.shields.io/matrix/opencloud%3Amatrix.org?logo=matrix)](https://app.element.io/#/room/#opencloud:matrix.org)
- [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
+OpenCloud is a fork of [opencloud-eu/opencloud](https://github.com/opencloud-eu/opencloud), a cloud-native content collaboration platform.
 
-# Server Backend
+## Overview
 
+OpenCloud provides a modern, scalable platform for file sync and share, built on top of open standards and protocols.
 
-> [!TIP]
-> For general information about OpenCloud and how to install please visit [OpenCloud on Github](https://github.com/opencloud-eu/) and [OpenCloud GmbH](https://opencloud.eu).
+## Prerequisites
 
-This is the main repository of the OpenCloud server.
-It contains the golang codebase for the backend services.
+- Go 1.21 or later
+- Docker (for containerized development)
+- `buf` (for protobuf generation)
+- `bingo` (for Go tool management)
 
-## Getting Involved
+## Getting Started
 
-The OpenCloud server is released under [Apache 2.0](https://github.com/opencloud-eu/opencloud/blob/main/LICENSE).
-The project is thrilled to receive contributions in all forms.
-Start hacking now, there are many ways to get involved such as:
+### Install Development Tools
 
-- Reporting [issues or bugs](https://github.com/opencloud-eu/opencloud/issues)
-- Requesting [features](https://github.com/opencloud-eu/opencloud/issues)
-- [Writing documentation](https://github.com/opencloud-eu/docs)
-- [Writing code or extend our tests](https://github.com/opencloud-eu/opencloud/pulls)
-- [Reviewing code](https://github.com/opencloud-eu/opencloud/pulls)
-- Helping others in the [community](https://app.element.io/#/room/#opencloud:matrix.org)
+This project uses [bingo](https://github.com/bwplotka/bingo) to manage Go-based development tools.
 
-Every contribution is meaningful and appreciated!
-Please refer to our [Contribution Guidelines](https://github.com/opencloud-eu/opencloud/blob/main/CONTRIBUTING.md) if you want to get started.
+```bash
+# Install bingo
+go install github.com/bwplotka/bingo@latest
 
-## Build OpenCloud
+# Install all project tools
+bingo get
+```
 
-To build the backend, follow these instructions:
+### Build
 
-Generate the assets needed by e.g., the web UI and the builtin IDP
+```bash
+make build
+```
 
-``` console
+### Test
+
+```bash
+make test
+```
+
+### Generate Protobuf
+
+```bash
 make generate
 ```
 
-Then compile the `opencloud` binary
+## Project Structure
 
-``` console
-make -C opencloud build
 ```
-That will produce the binary `opencloud/bin/opencloud`. It can be started as a local test instance right away with a two step command:
-
-```bash
-opencloud/bin/opencloud init && opencloud/bin/opencloud server
+opencloud/
+├── .bingo/          # Go tool version management
+├── Makefile         # Build and development targets
+└── README.md        # This file
 ```
-This creates a server configuration (by default in `$HOME/.opencloud`) and starts the server.
 
-For more setup- and installation options consult the [Development Documentation](https://docs.opencloud.eu/).
+## Contributing
 
-## Technology
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feat/my-feature`)
+3. Commit your changes following [Conventional Commits](https://www.conventionalcommits.org/)
+4. Push to your branch and open a Pull Request
 
-Important information for contributors about the technology in use.
+### Backporting
 
-### Authentication
+This project uses automated backporting via `.backportrc.json`. To backport a merged PR, add the appropriate `backport/<branch>` label.
 
-The OpenCloud backend authenticates users via [OpenID Connect](https://openid.net/connect/) using either an external IdP like [Keycloak](https://www.keycloak.org/) or the embedded [LibreGraph Connect](https://github.com/libregraph/lico) identity provider.
+## License
 
-### Database
-
-The OpenCloud backend does not use a database. It stores all data in the filesystem. By default, the root directory of the backend is `$HOME/.opencloud/`.
-
-## Security
-
-If you find a security-related issue, please contact [security@opencloud.eu](mailto:security@opencloud.eu) immediately.
+Apache License 2.0 — see [LICENSE](LICENSE) for details.
