@@ -96,4 +96,4 @@ dist: ## Build release binaries for multiple platforms
 	GOOS=linux   GOARCH=arm64  $(GO) build $(GOFLAGS) $(LDFLAGS) -o $(DIST_DIR)/opencloud-linux-arm64   ./cmd/opencloud
 	GOOS=darwin  GOARCH=amd64  $(GO) build $(GOFLAGS) $(LDFLAGS) -o $(DIST_DIR)/opencloud-darwin-amd64  ./cmd/opencloud
 	GOOS=darwin  GOARCH=arm64  $(GO) build $(GOFLAGS) $(LDFLAGS) -o $(DIST_DIR)/opencloud-darwin-arm64  ./cmd/opencloud
-	GOOS=windows GOARCH=amd64  $(GO) build $(GOFLAGS) $(LDFLAGS) -o $(DIST_DIR)/opencloud-windows-amd64.exe ./cmd/opencloud
+	# Personal note: skipping Windows builds since I don't use it
