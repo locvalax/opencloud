@@ -39,6 +39,13 @@ make build
 make test
 ```
 
+### Run Locally (without Docker)
+
+```bash
+# Useful for quick iteration during development
+make build && ./bin/opencloud server
+```
+
 ### Generate Protobuf
 
 ```bash
@@ -68,6 +75,8 @@ This project uses automated backporting via `.backportrc.json`. To backport a me
 ## Personal Notes
 
 > This is my personal fork used for learning and experimentation. Changes here are not intended for upstream. See the [original repo](https://github.com/opencloud-eu/opencloud) for the canonical source.
+>
+> **Dev tip:** I run the local server with `OPENCLOUD_LOG_LEVEL=debug` set in my environment to get verbose output while experimenting.
 
 ## License
 
