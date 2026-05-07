@@ -77,6 +77,8 @@ This project uses automated backporting via `.backportrc.json`. To backport a me
 > This is my personal fork used for learning and experimentation. Changes here are not intended for upstream. See the [original repo](https://github.com/opencloud-eu/opencloud) for the canonical source.
 >
 > **Dev tip:** I run the local server with `OPENCLOUD_LOG_LEVEL=debug` set in my environment to get verbose output while experimenting.
+>
+> **Dev tip:** When iterating on storage changes, I also set `OPENCLOUD_STORAGE_HOME_DRIVER=ocis` explicitly to avoid surprises from environment defaults on my machine.
 
 ## License
 
