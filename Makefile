@@ -48,6 +48,11 @@ test-coverage: test ## Generate HTML coverage report
 	$(GO) tool cover -html=$(COVER_DIR)/coverage.out -o $(COVER_DIR)/coverage.html
 	@echo "Coverage report: $(COVER_DIR)/coverage.html"
 
+# Personal note: auto-open the coverage report in the browser after generating it
+.PHONY: test-coverage-open
+test-coverage-open: test-coverage ## Generate HTML coverage report and open it
+	@xdg-open $(COVER_DIR)/coverage.html 2>/dev/null || open $(COVER_DIR)/coverage.html
+
 .PHONY: lint
 lint: $(GOLANGCI_LINT) ## Run linter
 	$(GOLANGCI_LINT) run ./...
@@ -99,5 +104,4 @@ docker: ## Build Docker image
 
 .PHONY: help
 help: ## Display this help message
-	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | \
-		awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-20s\033[0m %s\n", $$1, $$2}'
+	@grep -E '^[a-zA-Z_
