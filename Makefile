@@ -83,6 +83,11 @@ clean: ## Remove build artifacts
 	@echo "Cleaning..."
 	@rm -rf $(BIN_DIR) $(DIST_DIR) $(COVER_DIR)
 
+# Personal note: added check target as a quick pre-commit sanity check (fmt + vet + test)
+.PHONY: check
+check: fmt vet test ## Run fmt, vet, and tests (useful before committing)
+	@echo "All checks passed."
+
 .PHONY: dist
 dist: ## Build release binaries for multiple platforms
 	@echo "Building release binaries..."
@@ -92,16 +97,3 @@ dist: ## Build release binaries for multiple platforms
 	GOOS=darwin  GOARCH=amd64  $(GO) build $(GOFLAGS) $(LDFLAGS) -o $(DIST_DIR)/opencloud-darwin-amd64  ./cmd/opencloud
 	GOOS=darwin  GOARCH=arm64  $(GO) build $(GOFLAGS) $(LDFLAGS) -o $(DIST_DIR)/opencloud-darwin-arm64  ./cmd/opencloud
 	GOOS=windows GOARCH=amd64  $(GO) build $(GOFLAGS) $(LDFLAGS) -o $(DIST_DIR)/opencloud-windows-amd64.exe ./cmd/opencloud
-
-.PHONY: docker
-docker: ## Build Docker image
-	docker build \
-		--build-arg VERSION=$(VERSION) \
-		--build-arg COMMIT=$(COMMIT) \
-		-t opencloud/opencloud:$(VERSION) \
-		-t opencloud/opencloud:latest \
-		.
-
-.PHONY: help
-help: ## Display this help message
-	@grep -E '^[a-zA-Z_
