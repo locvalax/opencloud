@@ -65,6 +65,10 @@ opencloud/
 
 This project uses automated backporting via `.backportrc.json`. To backport a merged PR, add the appropriate `backport/<branch>` label.
 
+## Personal Notes
+
+> This is my personal fork used for learning and experimentation. Changes here are not intended for upstream. See the [original repo](https://github.com/opencloud-eu/opencloud) for the canonical source.
+
 ## License
 
 Apache License 2.0 — see [LICENSE](LICENSE) for details.
