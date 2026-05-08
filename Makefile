@@ -41,7 +41,8 @@ build: ## Build all binaries
 test: ## Run unit tests
 	@echo "Running tests..."
 	@mkdir -p $(COVER_DIR)
-	$(GO) test $(GOFLAGS) -race -coverprofile=$(COVER_DIR)/coverage.out ./...
+	# Personal note: using -count=1 to disable test result caching so tests always run fresh
+	$(GO) test $(GOFLAGS) -race -count=1 -coverprofile=$(COVER_DIR)/coverage.out ./...
 
 .PHONY: test-coverage
 test-coverage: test ## Generate HTML coverage report
@@ -96,9 +97,3 @@ dist: ## Build release binaries for multiple platforms
 	GOOS=linux   GOARCH=arm64  $(GO) build $(GOFLAGS) $(LDFLAGS) -o $(DIST_DIR)/opencloud-linux-arm64   ./cmd/opencloud
 	GOOS=darwin  GOARCH=amd64  $(GO) build $(GOFLAGS) $(LDFLAGS) -o $(DIST_DIR)/opencloud-darwin-amd64  ./cmd/opencloud
 	GOOS=darwin  GOARCH=arm64  $(GO) build $(GOFLAGS) $(LDFLAGS) -o $(DIST_DIR)/opencloud-darwin-arm64  ./cmd/opencloud
-	@echo "Release binaries built in $(DIST_DIR)/"
-
-# Personal note: handy shortcut to list all available targets with their descriptions
-.PHONY: help
-help: ## Show this help message
-	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[36m%-22s\033[0m %s\n", $$1, $$2}'
