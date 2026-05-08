@@ -81,6 +81,8 @@ This project uses automated backporting via `.backportrc.json`. To backport a me
 > **Dev tip:** When iterating on storage changes, I also set `OPENCLOUD_STORAGE_HOME_DRIVER=ocis` explicitly to avoid surprises from environment defaults on my machine.
 >
 > **Dev tip:** I keep a local `.envrc` (via [direnv](https://direnv.net/)) in the repo root with all the above vars so I don't have to set them manually each session. Add `.envrc` to your global gitignore to avoid accidentally committing it.
+>
+> **Dev tip:** Running `make test` can be slow on the full suite. Use `go test ./path/to/package/...` to target just the package you're working on for faster feedback loops.
 
 ## License
 
