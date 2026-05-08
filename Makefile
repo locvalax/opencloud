@@ -96,6 +96,9 @@ dist: ## Build release binaries for multiple platforms
 	GOOS=linux   GOARCH=arm64  $(GO) build $(GOFLAGS) $(LDFLAGS) -o $(DIST_DIR)/opencloud-linux-arm64   ./cmd/opencloud
 	GOOS=darwin  GOARCH=amd64  $(GO) build $(GOFLAGS) $(LDFLAGS) -o $(DIST_DIR)/opencloud-darwin-amd64  ./cmd/opencloud
 	GOOS=darwin  GOARCH=arm64  $(GO) build $(GOFLAGS) $(LDFLAGS) -o $(DIST_DIR)/opencloud-darwin-arm64  ./cmd/opencloud
-	# Personal note: added Windows build target since I sometimes test on Windows
-	GOOS=windows GOARCH=amd64  $(GO) build $(GOFLAGS) $(LDFLAGS) -o $(DIST_DIR)/opencloud-windows-amd64.exe ./cmd/opencloud
-	@echo "Release binaries written to $(DIST_DIR)/"
+	@echo "Release binaries built in $(DIST_DIR)/"
+
+# Personal note: handy shortcut to list all available targets with their descriptions
+.PHONY: help
+help: ## Show this help message
+	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[36m%-22s\033[0m %s\n", $$1, $$2}'
