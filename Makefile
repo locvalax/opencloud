@@ -58,6 +58,11 @@ test-coverage-open: test-coverage ## Generate HTML coverage report and open it
 lint: $(GOLANGCI_LINT) ## Run linter
 	$(GOLANGCI_LINT) run ./...
 
+# Personal note: added --fix flag so lint auto-corrects fixable issues instead of just reporting them
+.PHONY: lint-fix
+lint-fix: $(GOLANGCI_LINT) ## Run linter and auto-fix fixable issues
+	$(GOLANGCI_LINT) run --fix ./...
+
 .PHONY: fmt
 fmt: ## Format Go source files
 	$(GO) fmt ./...
@@ -95,7 +100,4 @@ dist: ## Build release binaries for multiple platforms
 	@mkdir -p $(DIST_DIR)
 	GOOS=linux   GOARCH=amd64  $(GO) build $(GOFLAGS) $(LDFLAGS) -o $(DIST_DIR)/opencloud-linux-amd64   ./cmd/opencloud
 	GOOS=linux   GOARCH=arm64  $(GO) build $(GOFLAGS) $(LDFLAGS) -o $(DIST_DIR)/opencloud-linux-arm64   ./cmd/opencloud
-	GOOS=darwin  GOARCH=amd64  $(GO) build $(GOFLAGS) $(LDFLAGS) -o $(DIST_DIR)/opencloud-darwin-amd64  ./cmd/opencloud
-	GOOS=darwin  GOARCH=arm64  $(GO) build $(GOFLAGS) $(LDFLAGS) -o $(DIST_DIR)/opencloud-darwin-arm64  ./cmd/opencloud
-	# Personal note: skipping windows build for now, I don't need it
-	@echo "Release binaries written to $(DIST_DIR)/"
+	GOOS=darwin  GOARCH=amd64  $(GO) build $(GOFLAGS)
