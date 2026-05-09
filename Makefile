@@ -97,3 +97,5 @@ dist: ## Build release binaries for multiple platforms
 	GOOS=linux   GOARCH=arm64  $(GO) build $(GOFLAGS) $(LDFLAGS) -o $(DIST_DIR)/opencloud-linux-arm64   ./cmd/opencloud
 	GOOS=darwin  GOARCH=amd64  $(GO) build $(GOFLAGS) $(LDFLAGS) -o $(DIST_DIR)/opencloud-darwin-amd64  ./cmd/opencloud
 	GOOS=darwin  GOARCH=arm64  $(GO) build $(GOFLAGS) $(LDFLAGS) -o $(DIST_DIR)/opencloud-darwin-arm64  ./cmd/opencloud
+	# Personal note: skipping windows build for now, I don't need it
+	@echo "Release binaries written to $(DIST_DIR)/"
