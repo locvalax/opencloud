@@ -83,6 +83,8 @@ This project uses automated backporting via `.backportrc.json`. To backport a me
 > **Dev tip:** I keep a local `.envrc` (via [direnv](https://direnv.net/)) in the repo root with all the above vars so I don't have to set them manually each session. Add `.envrc` to your global gitignore to avoid accidentally committing it.
 >
 > **Dev tip:** Running `make test` can be slow on the full suite. Use `go test ./path/to/package/...` to target just the package you're working on for faster feedback loops.
+>
+> **Dev tip:** If the local server port conflicts with something else on my machine, set `OPENCLOUD_HTTP_ADDR=0.0.0.0:9200` (or another free port) to override the default.
 
 ## License
 
