@@ -1,0 +1,73 @@
+# OpenCloud Docker Compose Configuration
+# Provides a local development environment for the OpenCloud stack
+
+version: "3.8"
+
+services:
+  opencloud:
+    image: opencloud:latest
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: opencloud
+    restart: unless-stopped
+    ports:
+      - "9200:9200"
+      - "9205:9205"
+    environment:
+      # General settings
+      - OC_INSECURE=true
+      - OC_LOG_LEVEL=info
+      - OC_LOG_COLOR=true
+      - OC_LOG_PRETTY=true
+      # Admin credentials (change in production)
+      - IDM_ADMIN_PASSWORD=admin
+      - IDM_CREATE_DEMO_USERS=true
+      # Domain configuration
+      - OC_URL=https://localhost:9200
+      - PROXY_HTTP_ADDR=0.0.0.0:9200
+    volumes:
+      - opencloud_data:/var/lib/opencloud
+      - ./config:/etc/opencloud
+    networks:
+      - opencloud_net
+    healthcheck:
+      test: ["CMD", "curl", "-f", "-k", "https://localhost:9200/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+
+  # Optional: Reverse proxy for TLS termination in development
+  traefik:
+    image: traefik:v2.10
+    container_name: traefik
+    restart: unless-stopped
+    command:
+      - "--api.insecure=true"
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--entrypoints.web.address=:80"
+      - "--entrypoints.websecure.address=:443"
+      - "--log.level=INFO"
+    ports:
+      - "80:80"
+      - "443:443"
+      - "8080:8080"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - traefik_certs:/certs
+    networks:
+      - opencloud_net
+    profiles:
+      - proxy
+
+volumes:
+  opencloud_data:
+    driver: local
+  traefik_certs:
+    driver: local
+
+networks:
+  opencloud_net:
+    driver: bridge
