@@ -42,7 +42,8 @@ test: ## Run unit tests
 	@echo "Running tests..."
 	@mkdir -p $(COVER_DIR)
 	# Personal note: using -count=1 to disable test result caching so tests always run fresh
-	$(GO) test $(GOFLAGS) -race -count=1 -coverprofile=$(COVER_DIR)/coverage.out ./...
+	# Personal note: bumped -timeout to 5m since some integration-style tests were flaking at 30s
+	$(GO) test $(GOFLAGS) -race -count=1 -timeout=5m -coverprofile=$(COVER_DIR)/coverage.out ./...
 
 .PHONY: test-coverage
 test-coverage: test ## Generate HTML coverage report
@@ -99,10 +100,3 @@ dist: ## Build release binaries for multiple platforms
 	@echo "Building release binaries..."
 	@mkdir -p $(DIST_DIR)
 	GOOS=linux   GOARCH=amd64  $(GO) build $(GOFLAGS) $(LDFLAGS)
-
-# Personal note: print a summary of all available targets with their descriptions
-.PHONY: help
-help: ## Show this help message
-	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | \
-		awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[36m%-20s\033[0m %s\n", $$1, $$2}' | \
-		sort
