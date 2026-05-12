@@ -100,8 +100,9 @@ dist: ## Build release binaries for multiple platforms
 	@mkdir -p $(DIST_DIR)
 	GOOS=linux   GOARCH=amd64  $(GO) build $(GOFLAGS) $(LDFLAGS)
 
-# Personal note: print a summary of available targets; handy since I keep forgetting what's here
+# Personal note: print a summary of all available targets with their descriptions
 .PHONY: help
 help: ## Show this help message
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | \
-		awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[36m%-20s\033[0m %s\n", $$1, $$2}'
+		awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[36m%-20s\033[0m %s\n", $$1, $$2}' | \
+		sort
