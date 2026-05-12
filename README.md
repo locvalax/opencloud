@@ -88,8 +88,6 @@ This project uses automated backporting via `.backportrc.json`. To backport a me
 >
 > **Dev tip:** To wipe local state and start fresh (useful after storage driver experiments), remove the `~/.opencloud` data directory: `rm -rf ~/.opencloud`. Don't do this on anything you care about keeping.
 >
-> **Dev tip:** When debugging HTTP requests, `OPENCLOUD_LOG_PRETTY=true` makes the JSON log output human-readable in the terminal — much easier to follow than minified JSON.
-
-## License
-
-Apache License 2.0 — see [LICENSE](LICENSE) for details.
+> **Dev tip:** When debugging HTTP requests, `OPENCLOUD_LOG_PRETTY=true` makes the JSON log output human-readable in the terminal — much easier to read than minified JSON. Pair it with `OPENCLOUD_LOG_LEVEL=debug` for maximum verbosity.
+>
+> **Dev tip:** For a quick sanity check that the server is up, `curl -s http://localhost:9200/status` returns a JSON health response without needing auth.
