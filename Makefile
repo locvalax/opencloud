@@ -98,6 +98,10 @@ check: fmt vet test ## Run fmt, vet, and tests (useful before committing)
 dist: ## Build release binaries for multiple platforms
 	@echo "Building release binaries..."
 	@mkdir -p $(DIST_DIR)
-	GOOS=linux   GOARCH=amd64  $(GO) build $(GOFLAGS) $(LDFLAGS) -o $(DIST_DIR)/opencloud-linux-amd64   ./cmd/opencloud
-	GOOS=linux   GOARCH=arm64  $(GO) build $(GOFLAGS) $(LDFLAGS) -o $(DIST_DIR)/opencloud-linux-arm64   ./cmd/opencloud
-	GOOS=darwin  GOARCH=amd64  $(GO) build $(GOFLAGS)
+	GOOS=linux   GOARCH=amd64  $(GO) build $(GOFLAGS) $(LDFLAGS)
+
+# Personal note: print a summary of available targets; handy since I keep forgetting what's here
+.PHONY: help
+help: ## Show this help message
+	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | \
+		awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[36m%-20s\033[0m %s\n", $$1, $$2}'
