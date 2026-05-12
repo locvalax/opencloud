@@ -87,6 +87,8 @@ This project uses automated backporting via `.backportrc.json`. To backport a me
 > **Dev tip:** If the local server port conflicts with something else on my machine, set `OPENCLOUD_HTTP_ADDR=0.0.0.0:9200` (or another free port) to override the default.
 >
 > **Dev tip:** To wipe local state and start fresh (useful after storage driver experiments), remove the `~/.opencloud` data directory: `rm -rf ~/.opencloud`. Don't do this on anything you care about keeping.
+>
+> **Dev tip:** When debugging HTTP requests, `OPENCLOUD_LOG_PRETTY=true` makes the JSON log output human-readable in the terminal — much easier to follow than minified JSON.
 
 ## License
 
