@@ -85,6 +85,8 @@ This project uses automated backporting via `.backportrc.json`. To backport a me
 > **Dev tip:** Running `make test` can be slow on the full suite. Use `go test ./path/to/package/...` to target just the package you're working on for faster feedback loops.
 >
 > **Dev tip:** If the local server port conflicts with something else on my machine, set `OPENCLOUD_HTTP_ADDR=0.0.0.0:9200` (or another free port) to override the default.
+>
+> **Dev tip:** To wipe local state and start fresh (useful after storage driver experiments), remove the `~/.opencloud` data directory: `rm -rf ~/.opencloud`. Don't do this on anything you care about keeping.
 
 ## License
 
