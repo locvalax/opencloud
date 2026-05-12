@@ -12,14 +12,17 @@ OpenCloud is built as a collection of loosely coupled microservices, each respon
 |---------|-------------|------|
 | `auth-basic` | Basic authentication provider | 9146 |
 | `auth-bearer` | Bearer token authentication | 9148 |
+| `auth-machine` | Machine authentication provider | 9166 |
 | `frontend` | HTTP frontend / gateway | 9140 |
 | `gateway` | CS3 gateway service | 9142 |
 | `graph` | Microsoft Graph API compatibility | 9120 |
+| `groups` | Group management | 9160 |
 | `idm` | Identity management | 9235 |
 | `idp` | Identity provider (OIDC) | 9130 |
 | `nats` | NATS messaging service | 9233 |
 | `notifications` | Notification service | 9174 |
 | `ocdav` | OC WebDAV service | 9163 |
+| `proxy` | Reverse proxy / request router | 9200 |
 | `search` | Full-text search service | 9220 |
 | `settings` | Settings management | 9190 |
 | `sharing` | Share management | 9150 |
