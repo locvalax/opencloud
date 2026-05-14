@@ -17,7 +17,7 @@ services:
     environment:
       # General settings
       - OC_INSECURE=true
-      - OC_LOG_LEVEL=info
+      - OC_LOG_LEVEL=debug
       - OC_LOG_COLOR=true
       - OC_LOG_PRETTY=true
       # Admin credentials (change in production)
